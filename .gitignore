@@ -3,3 +3,7 @@
 *.spec
 dist/**
 build/**
+__pycache__/**
+*.pyc
+downloader_settings.json
+download_history.jsonl

@@ -1,0 +1,5 @@
+videodownload conda 环境依赖：
+    yt-dlp
+    PyQt6
+    PyQt6-WebEngine
+    static-ffmpeg

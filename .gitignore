@@ -1,5 +1,6 @@
 # 添加忽略上传的项目
 .idea/**
-*.spec
 dist/**
 build/**
+__pycache__/
+*.pyc

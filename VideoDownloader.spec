@@ -27,6 +27,9 @@ for pkg in ("yt_dlp", "brotli", "mutagen", "websockets", "certifi", "curl_cffi",
     except Exception:
         pass
 
+# icon 资源打进包，供 UI 内品牌 logo 等加载
+datas += [("icon", "icon")]
+
 a = Analysis(
     ["app.py"],
     pathex=[],

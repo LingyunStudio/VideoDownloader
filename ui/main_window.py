@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import os
+import sys
 from typing import Optional
 
 from PyQt6.QtCore import Qt, QUrl, QByteArray, QRect, QTimer, QThread, pyqtSignal
@@ -53,6 +54,14 @@ from downloader.updater import UpdateWorker, get_current_version, get_active_sou
 from downloader.app_version import APP_VERSION
 from downloader.app_updater import AppUpdateWorker, install_and_restart
 from ui.style import QSS
+
+
+def _bundled_path(*parts: str) -> str:
+    """返回打包资源路径：冻结时用 sys._MEIPASS，开发时用源码根目录。"""
+    base = getattr(sys, "_MEIPASS", None) or os.path.dirname(
+        os.path.dirname(os.path.abspath(__file__))
+    )
+    return os.path.join(base, *parts)
 
 
 def _codec_label(codec: str) -> str:
@@ -443,10 +452,22 @@ class MainWindow(QMainWindow):
         outer.setContentsMargins(14, 14, 8, 14)
         outer.setSpacing(12)
 
-        # 顶部品牌
-        brand = QLabel("⬇  VideoDownloader")
-        brand.setObjectName("Brand")
-        outer.addWidget(brand)
+        # 顶部品牌：图标 + 名称（用真实图标代替不渲染的 ⬇ 字符）
+        brand_row = QHBoxLayout()
+        brand_row.setSpacing(8)
+        logo_lbl = QLabel()
+        logo_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        pix = QPixmap(_bundled_path("icon", "1.ico"))
+        if not pix.isNull():
+            logo_lbl.setPixmap(
+                pix.scaledToHeight(24, Qt.TransformationMode.SmoothTransformation)
+            )
+        name_lbl = QLabel("VideoDownloader")
+        name_lbl.setObjectName("Brand")
+        brand_row.addWidget(logo_lbl)
+        brand_row.addWidget(name_lbl)
+        brand_row.addStretch()
+        outer.addLayout(brand_row)
 
         # URL 输入
         url_card = QFrame()
@@ -487,33 +508,39 @@ class MainWindow(QMainWindow):
     def _build_update_bar(self) -> QFrame:
         card = QFrame()
         card.setObjectName("Card")
-        layout = QHBoxLayout(card)
+        layout = QVBoxLayout(card)
         layout.setContentsMargins(14, 10, 14, 10)
-        layout.setSpacing(8)
+        layout.setSpacing(6)
 
+        # 第一行：yt-dlp 版本 + 检查更新
+        r1 = QHBoxLayout()
+        r1.setSpacing(8)
         info = QLabel(f"yt-dlp  v{get_current_version()}  ·  {get_active_source()}")
         info.setObjectName("Subtitle")
         info.setToolTip("点击「检查更新」从 GitHub 获取最新 yt-dlp；更新后需重启生效")
         self.ytdlp_ver_label = info
-        layout.addWidget(info, 1)
-
+        r1.addWidget(info, 1)
         self.update_btn = QPushButton("检查更新")
         self.update_btn.setObjectName("Secondary")
         self.update_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.update_btn.clicked.connect(self._check_ytdlp_update)
-        layout.addWidget(self.update_btn)
+        r1.addWidget(self.update_btn)
+        layout.addLayout(r1)
 
+        # 第二行：软件版本 + 检查软件更新
+        r2 = QHBoxLayout()
+        r2.setSpacing(8)
         app_info = QLabel(f"软件  v{APP_VERSION}")
         app_info.setObjectName("Subtitle")
         app_info.setToolTip("点击「检查软件更新」从 GitHub 获取最新版本并自动升级（安装目录保持原位置）")
         self.app_ver_label = app_info
-        layout.addWidget(app_info)
-
+        r2.addWidget(app_info, 1)
         self.app_update_btn = QPushButton("检查软件更新")
         self.app_update_btn.setObjectName("Secondary")
         self.app_update_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.app_update_btn.clicked.connect(self._check_app_update)
-        layout.addWidget(self.app_update_btn)
+        r2.addWidget(self.app_update_btn)
+        layout.addLayout(r2)
         return card
 
     def _build_options_card(self) -> QFrame:

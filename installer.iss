@@ -47,8 +47,8 @@ Name: "{group}\Uninstall {#MyAppName}"; Filename: "{uninstallexe}"
 Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon; IconFilename: "{app}\{#MyAppExeName}"
 
 [Run]
-; 静默自更新后也重启新版：不带 postinstall/skipifsilent，/VERYSILENT 下仍执行
-Filename: "{app}\{#MyAppExeName}"; Flags: nowait
+; 仅静默自更新后重启新版：正常安装不自动打开（skipifnotsilent）；/VERYSILENT 下执行
+Filename: "{app}\{#MyAppExeName}"; Flags: nowait skipifnotsilent
 
 [UninstallDelete]
 ; clean program dir residue; user data in %APPDATA% is left untouched

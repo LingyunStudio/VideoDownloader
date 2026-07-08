@@ -3,7 +3,7 @@
 ; Standalone:  ISCC.exe installer.iss
 
 #define MyAppName        "VideoDownloader"
-#define MyAppVersion     "1.0.0"
+#define MyAppVersion     "2.1"
 #define MyAppPublisher   "VideoDownloader"
 #define MyAppExeName     "VideoDownloader.exe"
 #define MyAppIcon        "icon\1.ico"
@@ -28,9 +28,11 @@ ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 PrivilegesRequired=admin
 Uninstallable=yes
+; 自更新静默安装时关闭占用进程的旧版；UsePreviousAppDir=yes(默认)使装回原目录
+CloseApplications=force
 
 [Languages]
-Name: "english"; MessagesFile: "compiler:Default.isl"
+Name: "chinesesimp"; MessagesFile: "compiler:Languages\ChineseSimplified.isl"
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
@@ -45,7 +47,8 @@ Name: "{group}\Uninstall {#MyAppName}"; Filename: "{uninstallexe}"
 Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon; IconFilename: "{app}\{#MyAppExeName}"
 
 [Run]
-Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#MyAppName}}"; Flags: nowait postinstall skipifsilent
+; 静默自更新后也重启新版：不带 postinstall/skipifsilent，/VERYSILENT 下仍执行
+Filename: "{app}\{#MyAppExeName}"; Flags: nowait
 
 [UninstallDelete]
 ; clean program dir residue; user data in %APPDATA% is left untouched

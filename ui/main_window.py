@@ -50,6 +50,8 @@ from downloader.core import (
 )
 from downloader.ffmpeg_setup import FFmpegSetupWorker
 from downloader.updater import UpdateWorker, get_current_version, get_active_source
+from downloader.app_version import APP_VERSION
+from downloader.app_updater import AppUpdateWorker, install_and_restart
 from ui.style import QSS
 
 
@@ -500,6 +502,18 @@ class MainWindow(QMainWindow):
         self.update_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.update_btn.clicked.connect(self._check_ytdlp_update)
         layout.addWidget(self.update_btn)
+
+        app_info = QLabel(f"软件  v{APP_VERSION}")
+        app_info.setObjectName("Subtitle")
+        app_info.setToolTip("点击「检查软件更新」从 GitHub 获取最新版本并自动升级（安装目录保持原位置）")
+        self.app_ver_label = app_info
+        layout.addWidget(app_info)
+
+        self.app_update_btn = QPushButton("检查软件更新")
+        self.app_update_btn.setObjectName("Secondary")
+        self.app_update_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.app_update_btn.clicked.connect(self._check_app_update)
+        layout.addWidget(self.app_update_btn)
         return card
 
     def _build_options_card(self) -> QFrame:
@@ -551,8 +565,13 @@ class MainWindow(QMainWindow):
         browse_btn.setObjectName("Secondary")
         browse_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         browse_btn.clicked.connect(self._browse_output)
+        open_btn = QPushButton("打开")
+        open_btn.setObjectName("Secondary")
+        open_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        open_btn.clicked.connect(self._open_output_dir)
         dir_row.addWidget(self.output_edit, 1)
         dir_row.addWidget(browse_btn)
+        dir_row.addWidget(open_btn)
         r3.addLayout(dir_row)
         layout.addLayout(r3)
 
@@ -710,6 +729,16 @@ class MainWindow(QMainWindow):
         d = QFileDialog.getExistingDirectory(self, "选择保存目录", self.output_edit.text() or "")
         if d:
             self.output_edit.setText(d)
+
+    def _open_output_dir(self):
+        d = self.output_edit.text().strip()
+        if not d or not os.path.isdir(d):
+            QMessageBox.information(self, "打开目录", "保存目录不存在，请先选择。")
+            return
+        try:
+            os.startfile(d)
+        except Exception as e:
+            QMessageBox.warning(self, "打开失败", str(e))
 
     def _cookies_source(self) -> str:
         return self.cookies_combo.currentData() or ""
@@ -1161,6 +1190,74 @@ class MainWindow(QMainWindow):
         self.ytdlp_ver_label.setText(f"yt-dlp  v{get_current_version()}  ·  更新失败")
         QMessageBox.warning(self, "更新失败", msg)
 
+    # ---------- 软件自身更新 ----------
+    def _check_app_update(self):
+        if getattr(self, "_app_upd_worker", None) and self._app_upd_worker.isRunning():
+            return
+        self.app_update_btn.setEnabled(False)
+        self.app_update_btn.setText("检查中…")
+        self.app_ver_label.setText(f"软件  v{APP_VERSION}  ·  正在检查更新…")
+        self._app_upd_worker = AppUpdateWorker("check", self)
+        self._app_upd_worker.check_done.connect(self._on_app_check_done)
+        self._app_upd_worker.start()
+
+    def _on_app_check_done(self, current: str, latest: str, needs: bool, setup_url: str):
+        self.app_update_btn.setEnabled(True)
+        self.app_update_btn.setText("检查软件更新")
+        if not latest:
+            self.app_ver_label.setText(f"软件  v{current}  ·  检查失败，请稍后重试")
+            return
+        if not needs:
+            self.app_ver_label.setText(f"软件  v{current}  ·  已是最新")
+            return
+        self.app_ver_label.setText(f"软件  v{current} -> 可更新到 v{latest}")
+        reply = QMessageBox.question(
+            self, "发现新版本",
+            f"当前软件：v{current}\n最新版本：v{latest}\n\n是否下载并自动安装？\n"
+            "（将弹出 UAC 确认，安装完成后自动重启；安装目录保持原位置）",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+        )
+        if reply == QMessageBox.StandardButton.Yes:
+            self._do_app_update()
+
+    def _do_app_update(self):
+        self.app_update_btn.setEnabled(False)
+        self.app_update_btn.setText("更新中…")
+        self._app_upd_worker = AppUpdateWorker("update", self)
+        self._app_upd_worker.progress.connect(self._on_app_upd_progress)
+        self._app_upd_worker.done.connect(self._on_app_upd_done)
+        self._app_upd_worker.failed.connect(self._on_app_upd_failed)
+        self._app_upd_worker.start()
+
+    def _on_app_upd_progress(self, downloaded: int, total: int):
+        if total > 0:
+            pct = int(downloaded * 100 / total)
+            self.app_ver_label.setText(
+                f"下载更新中…  {human_size(downloaded)}/{human_size(total)}  {pct}%"
+            )
+        else:
+            self.app_ver_label.setText(f"下载更新中…  {human_size(downloaded)}")
+
+    def _on_app_upd_done(self, installer_path: str):
+        self.app_ver_label.setText("下载完成，正在启动安装程序…")
+        QMessageBox.information(
+            self, "即将安装更新",
+            "更新已下载完成。\n点击确定后将弹出 UAC 确认，软件将关闭并自动安装新版本、重启。",
+        )
+        try:
+            install_and_restart(installer_path)
+        except Exception as e:
+            self.app_update_btn.setEnabled(True)
+            self.app_update_btn.setText("检查软件更新")
+            self.app_ver_label.setText(f"软件  v{APP_VERSION}  ·  启动安装失败")
+            QMessageBox.warning(self, "更新失败", str(e))
+
+    def _on_app_upd_failed(self, msg: str):
+        self.app_update_btn.setEnabled(True)
+        self.app_update_btn.setText("检查软件更新")
+        self.app_ver_label.setText(f"软件  v{APP_VERSION}  ·  更新失败")
+        QMessageBox.warning(self, "更新失败", msg)
+
     def closeEvent(self, event):
         from downloader.debug import trace
         trace("closeEvent fired")
@@ -1179,7 +1276,47 @@ class MainWindow(QMainWindow):
             if reply != QMessageBox.StandardButton.Yes:
                 event.ignore()
                 return
+        self._shutdown_workers()
         event.accept()
+        # setQuitOnLastWindowClosed(False) 时关窗不会退出事件循环，需显式 quit，
+        # 否则进程残留（心跳定时器关窗后仍持续即证）
+        QApplication.instance().quit()
+
+    def _shutdown_workers(self):
+        from downloader.debug import trace
+        try:
+            self._hb.stop()
+        except Exception:
+            pass
+        workers = []
+        for attr in ("_extract_worker", "_upd_worker", "_app_upd_worker"):
+            w = getattr(self, attr, None)
+            if w is not None:
+                workers.append(w)
+        thumb_loader = getattr(self, "thumb", None)
+        if thumb_loader is not None and getattr(thumb_loader, "_worker", None) is not None:
+            workers.append(thumb_loader._worker)
+        for i in range(self.queue_layout.count()):
+            item = self.queue_layout.itemAt(i)
+            if item and isinstance(item.widget(), DownloadCard):
+                workers.append(item.widget().worker)
+        for w in workers:
+            try:
+                if hasattr(w, "cancel"):
+                    w.cancel()
+            except Exception:
+                pass
+            try:
+                w.wait(1500)
+            except Exception:
+                pass
+            if w.isRunning():
+                try:
+                    w.terminate()
+                    w.wait(1000)
+                except Exception:
+                    pass
+        trace("workers shut down")
 
 
 def run():

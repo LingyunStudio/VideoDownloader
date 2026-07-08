@@ -9,7 +9,7 @@ import sys
 from typing import Optional
 
 from PyQt6.QtCore import Qt, QUrl, QByteArray, QRect, QTimer, QThread, pyqtSignal
-from PyQt6.QtGui import QPixmap, QColor, QLinearGradient, QPainter, QFont, QPalette
+from PyQt6.QtGui import QPixmap, QIcon, QColor, QLinearGradient, QPainter, QFont, QPalette
 from PyQt6.QtWidgets import (
     QAbstractItemView,
     QApplication,
@@ -451,23 +451,6 @@ class MainWindow(QMainWindow):
         outer = QVBoxLayout(wrap)
         outer.setContentsMargins(14, 14, 8, 14)
         outer.setSpacing(12)
-
-        # 顶部品牌：图标 + 名称（用真实图标代替不渲染的 ⬇ 字符）
-        brand_row = QHBoxLayout()
-        brand_row.setSpacing(8)
-        logo_lbl = QLabel()
-        logo_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        pix = QPixmap(_bundled_path("icon", "1.ico"))
-        if not pix.isNull():
-            logo_lbl.setPixmap(
-                pix.scaledToHeight(24, Qt.TransformationMode.SmoothTransformation)
-            )
-        name_lbl = QLabel("VideoDownloader")
-        name_lbl.setObjectName("Brand")
-        brand_row.addWidget(logo_lbl)
-        brand_row.addWidget(name_lbl)
-        brand_row.addStretch()
-        outer.addLayout(brand_row)
 
         # URL 输入
         url_card = QFrame()
@@ -1354,6 +1337,7 @@ def run():
     app = QApplication(sys.argv)
     app.setStyleSheet(QSS)
     app.setApplicationName("VideoDownloader")
+    app.setWindowIcon(QIcon(_bundled_path("icon", "1.ico")))
     app.setQuitOnLastWindowClosed(False)  # 防止意外退出事件循环
 
     def _on_about_to_quit():

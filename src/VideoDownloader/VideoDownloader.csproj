@@ -1,0 +1,52 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <RootNamespace>VideoDownloader</RootNamespace>
+    <AssemblyName>VideoDownloader</AssemblyName>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>..\..\icon\1.ico</ApplicationIcon>
+    <Platforms>x64;ARM64</Platforms>
+    <Platform Condition="'$(Platform)' == ''">x64</Platform>
+    <RuntimeIdentifiers>win-x64;win-arm64</RuntimeIdentifiers>
+    <UseWinUI>true</UseWinUI>
+    <EnableMsixTooling>true</EnableMsixTooling>
+    <WindowsPackageType>None</WindowsPackageType>
+    <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>12.0</LangVersion>
+    <NoWarn>$(NoWarn);MVVMTK0045</NoWarn>
+    <Version>3.0.1</Version>
+    <AssemblyVersion>3.0.1.0</AssemblyVersion>
+    <FileVersion>3.0.1.0</FileVersion>
+    <Product>VideoDownloader</Product>
+    <Company>VideoDownloader</Company>
+    <Description>Modern WinUI 3 video downloader powered by yt-dlp and ffmpeg.</Description>
+    <!-- Performance & low memory defaults -->
+    <ServerGarbageCollection>false</ServerGarbageCollection>
+    <ConcurrentGarbageCollection>true</ConcurrentGarbageCollection>
+    <TieredCompilation>true</TieredCompilation>
+    <TieredPGO>true</TieredPGO>
+    <PublishReadyToRun Condition="'$(Configuration)' == 'Release'">true</PublishReadyToRun>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.250205002" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\..\icon\1.ico" Link="Assets\Icons\1.ico" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\..\icon\dlp.png" Link="Assets\Icons\dlp.png" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\..\icon\wx2.ico" Link="Assets\Icons\wx2.ico" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\..\icon\x.ico" Link="Assets\Icons\x.ico" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\..\icon\cut.png" Link="Assets\Icons\cut.png" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Manifest Include="$(ApplicationManifest)" />
+  </ItemGroup>
+</Project>

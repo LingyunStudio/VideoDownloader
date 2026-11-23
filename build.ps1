@@ -1,79 +1,57 @@
-#Requires -Version 5.1
-<#
-  VideoDownloader one-click build script.
-  Outputs:
-    dist\VideoDownloader\          (PyInstaller onedir)
-    dist\VideoDownloader_Setup.exe (Inno Setup installer)
+﻿# VideoDownloader (WinUI 3) 一键构建与打包脚本
+# 用法示例：
+#   powershell -ExecutionPolicy Bypass -File build.ps1
+#   powershell -ExecutionPolicy Bypass -File build.ps1 -SkipInstaller
+#   powershell -ExecutionPolicy Bypass -File build.ps1 -Clean
 
-  Usage (in project root pyqt6-downloader):
-    powershell -ExecutionPolicy Bypass -File build.ps1
-  Options:
-    -SkipInstaller   skip Inno Setup step
-    -Clean           remove old build/dist first
-    -Python <path>   python exe (default: conda env videodownload)
-    -Iscc   <path>   ISCC.exe     (default: D:\InnoSetup6\ISCC.exe)
-#>
-[CmdletBinding()]
 param(
-    [string]$Python  = "D:\anaconda\envs\videodownload\python.exe",
-    [string]$Iscc    = "D:\InnoSetup6\ISCC.exe",
-    [string]$Project = $PSScriptRoot,
+    [switch]$Clean,
     [switch]$SkipInstaller,
-    [switch]$Clean
+    [ValidateSet("x64", "ARM64")]
+    [string]$Arch = "x64",
+    [string]$Iscc = "D:\InnoSetup6\ISCC.exe"
 )
 
 $ErrorActionPreference = "Stop"
-if (-not $Project) { $Project = $PSScriptRoot }
-if (-not $Project) { $Project = Split-Path -Parent $MyInvocation.MyCommand.Path }
-if (-not $Project) { $Project = (Get-Location).Path }
-Set-Location $Project
-Write-Host "==> project dir: $Project" -ForegroundColor DarkGray
-
-Write-Host "==> VideoDownloader build" -ForegroundColor Cyan
+$Root = Split-Path -Parent $MyInvocation.MyCommand.Path
+$Project = Join-Path $Root "src\VideoDownloader\VideoDownloader.csproj"
+$Rid = if ($Arch -eq "ARM64") { "win-arm64" } else { "win-x64" }
+$PublishDir = Join-Path $Root "dist\VideoDownloader"
 
 if ($Clean) {
-    Write-Host "==> cleaning old build/dist" -ForegroundColor Yellow
-    Remove-Item -Recurse -Force build, dist -ErrorAction SilentlyContinue
+    Write-Host "[1/3] 清理旧构建产物..." -ForegroundColor Cyan
+    Remove-Item -Recurse -Force -ErrorAction SilentlyContinue (Join-Path $Root "dist")
+    Remove-Item -Recurse -Force -ErrorAction SilentlyContinue (Join-Path $Root "src\VideoDownloader\bin")
+    Remove-Item -Recurse -Force -ErrorAction SilentlyContinue (Join-Path $Root "src\VideoDownloader\obj")
 }
 
-# 1. Verify user icon present
-if (-not (Test-Path "icon\1.ico")) {
-    throw "icon\1.ico not found. Place your app icon there."
+Write-Host "[2/3] 发布 WinUI 3 应用 ($Arch / Release / Self-Contained / ReadyToRun)..." -ForegroundColor Cyan
+dotnet publish $Project `
+    -c Release `
+    -p:Platform=$Arch `
+    -r $Rid `
+    --self-contained true `
+    -p:WindowsAppSDKSelfContained=true `
+    -p:PublishReadyToRun=true `
+    -o $PublishDir
+
+if ($LASTEXITCODE -ne 0) {
+    throw "dotnet publish 失败（退出码 $LASTEXITCODE）"
 }
-Write-Host "==> using icon: icon\1.ico" -ForegroundColor DarkGray
 
-# 2. PyInstaller
-Write-Host "==> PyInstaller" -ForegroundColor Yellow
-& $Python -m PyInstaller --noconfirm --clean VideoDownloader.spec
-if ($LASTEXITCODE -ne 0) { throw "PyInstaller failed (exit $LASTEXITCODE)" }
+Write-Host "发布目录：$PublishDir" -ForegroundColor Green
 
-$appDir = Join-Path $Project "dist\VideoDownloader"
-if (-not (Test-Path $appDir)) { throw "Output dir not found: $appDir" }
-
-# 3. Trim unused folders to shrink size
-Get-ChildItem $appDir -Recurse -Directory -Include "translations","examples","tests","__pycache__" -ErrorAction SilentlyContinue |
-    Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
-
-$sizeMB = [math]::Round((Get-ChildItem $appDir -Recurse -File | Measure-Object Length -Sum).Sum / 1MB, 1)
-Write-Host "==> app dir size: ${sizeMB} MB" -ForegroundColor Green
-
-# 5. Inno Setup
-if ($SkipInstaller) {
-    Write-Host "==> skipped installer (-SkipInstaller)" -ForegroundColor Yellow
-    return
+if (-not $SkipInstaller) {
+    if (Test-Path $Iscc) {
+        Write-Host "[3/3] 使用 Inno Setup 生成安装包..." -ForegroundColor Cyan
+        & $Iscc (Join-Path $Root "installer.iss")
+        if ($LASTEXITCODE -ne 0) {
+            throw "ISCC 打包失败（退出码 $LASTEXITCODE）"
+        }
+        Write-Host "安装包已生成：$(Join-Path $Root 'dist\VideoDownloader_Setup.exe')" -ForegroundColor Green
+    } else {
+        Write-Host "[3/3] 未找到 ISCC.exe ($Iscc)，跳过安装包生成。" -ForegroundColor Yellow
+    }
+} else {
+    Write-Host "[3/3] 已指定 -SkipInstaller，跳过安装包生成。" -ForegroundColor Yellow
 }
-if (-not (Test-Path $Iscc)) {
-    Write-Host "==> ISCC.exe not found ($Iscc), skipping installer" -ForegroundColor Yellow
-    Write-Host "    install Inno Setup or pass -Iscc <path>" -ForegroundColor Yellow
-    return
-}
-Write-Host "==> Inno Setup" -ForegroundColor Yellow
-& $Iscc /Q "installer.iss"
-if ($LASTEXITCODE -ne 0) { throw "ISCC failed (exit $LASTEXITCODE)" }
-
-$setup = Join-Path $Project "dist\VideoDownloader_Setup.exe"
-if (Test-Path $setup) {
-    $setupMB = [math]::Round((Get-Item $setup).Length / 1MB, 1)
-    Write-Host "==> installer: dist\VideoDownloader_Setup.exe (${setupMB} MB)" -ForegroundColor Green
-}
-Write-Host "==> done" -ForegroundColor Cyan

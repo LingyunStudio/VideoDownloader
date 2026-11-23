@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="VideoDownloader.Views.DownloadsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:models="using:VideoDownloader.Models"
+    Background="Transparent">
+
+    <Grid Padding="32,18,32,28" RowSpacing="18" MaxWidth="1080">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Header + Batch Actions -->
+        <Grid Grid.Row="0" ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" Spacing="3">
+                <TextBlock Text="下载队列" Style="{StaticResource PageTitleStyle}" />
+                <TextBlock Text="实时监控并发下载任务、合并转码状态与传输速率" Style="{StaticResource CaptionMutedStyle}" />
+            </StackPanel>
+
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                <Button Command="{x:Bind ViewModel.ClearFinishedCommand}" CornerRadius="8">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <FontIcon Glyph="&#xEA99;" FontSize="13" />
+                        <TextBlock Text="清理已完成" />
+                    </StackPanel>
+                </Button>
+                <Button Command="{x:Bind ViewModel.CancelAllCommand}" CornerRadius="8">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <FontIcon Glyph="&#xE711;" FontSize="13" />
+                        <TextBlock Text="全部取消" />
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </Grid>
+
+        <!-- 3 KPI Stat Cards -->
+        <Grid Grid.Row="1" ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0" Style="{StaticResource SettingsItemCardStyle}">
+                <Grid ColumnSpacing="12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0" Width="38" Height="38" CornerRadius="10" Background="{ThemeResource InfoSoftBgBrush}">
+                        <FontIcon Glyph="&#xE896;" FontSize="16" Foreground="{ThemeResource InfoTextBrush}" />
+                    </Border>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="1">
+                        <TextBlock Text="进行中任务" FontSize="11" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        <TextBlock Text="{x:Bind ViewModel.ActiveCount, Mode=OneWay}" FontSize="20" FontWeight="SemiBold" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <Border Grid.Column="1" Style="{StaticResource SettingsItemCardStyle}">
+                <Grid ColumnSpacing="12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0" Width="38" Height="38" CornerRadius="10" Background="{ThemeResource WarningSoftBgBrush}">
+                        <FontIcon Glyph="&#xEC4A;" FontSize="16" Foreground="{ThemeResource WarningTextBrush}" />
+                    </Border>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="1">
+                        <TextBlock Text="当前总速度" FontSize="11" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        <TextBlock Text="{x:Bind ViewModel.TotalSpeedText, Mode=OneWay}" FontSize="20" FontWeight="SemiBold" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <Border Grid.Column="2" Style="{StaticResource SettingsItemCardStyle}">
+                <Grid ColumnSpacing="12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0" Width="38" Height="38" CornerRadius="10" Background="{ThemeResource SuccessSoftBgBrush}">
+                        <FontIcon Glyph="&#xE73E;" FontSize="16" Foreground="{ThemeResource SuccessTextBrush}" />
+                    </Border>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="1">
+                        <TextBlock Text="已完成任务" FontSize="11" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        <TextBlock Text="{x:Bind ViewModel.CompletedCount, Mode=OneWay}" FontSize="20" FontWeight="SemiBold" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Refined Empty State -->
+        <StackPanel Grid.Row="2"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Spacing="12"
+                    Visibility="{x:Bind ViewModel.HasTasks, Mode=OneWay, Converter={StaticResource InverseBoolToVis}}">
+            <Border Width="68" Height="68" CornerRadius="18" Background="{ThemeResource CardSurfaceBrush}" BorderBrush="{ThemeResource CardBorderBrush}" BorderThickness="1" HorizontalAlignment="Center">
+                <FontIcon Glyph="&#xE896;" FontSize="28" Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+            </Border>
+            <TextBlock Text="当前没有下载任务" FontSize="16" FontWeight="SemiBold" HorizontalAlignment="Center" />
+            <TextBlock Text="前往「解析下载」粘贴链接后，所有并发任务进度将在这里实时呈现"
+                       Style="{StaticResource CaptionMutedStyle}"
+                       HorizontalAlignment="Center" />
+        </StackPanel>
+
+        <!-- Task List -->
+        <ListView Grid.Row="2"
+                  ItemsSource="{x:Bind ViewModel.Tasks}"
+                  SelectionMode="None"
+                  Visibility="{x:Bind ViewModel.HasTasks, Mode=OneWay, Converter={StaticResource BoolToVis}}">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                    <Setter Property="Padding" Value="0,5" />
+                </Style>
+            </ListView.ItemContainerStyle>
+            <ListView.ItemTemplate>
+                <DataTemplate x:DataType="models:DownloadTaskItem">
+                    <Border Style="{StaticResource FluentCardStyle}" Padding="18,14">
+                        <Grid RowSpacing="10">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <!-- Row 1: Icon + Title + Badges + Actions -->
+                            <Grid Grid.Row="0" ColumnSpacing="14">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <Border Grid.Column="0" Width="40" Height="40" CornerRadius="10" Background="{ThemeResource InfoSoftBgBrush}" VerticalAlignment="Center">
+                                    <FontIcon Glyph="&#xE714;" FontSize="17" Foreground="{ThemeResource InfoTextBrush}" />
+                                </Border>
+
+                                <StackPanel Grid.Column="1" Spacing="5" VerticalAlignment="Center">
+                                    <TextBlock Text="{x:Bind Title}"
+                                               FontSize="14"
+                                               FontWeight="SemiBold"
+                                               TextTrimming="CharacterEllipsis" />
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <Border Style="{StaticResource AccentPillBadgeStyle}">
+                                            <TextBlock Text="{x:Bind SourceBadge}" FontSize="11" FontWeight="SemiBold" Foreground="{ThemeResource InfoTextBrush}" />
+                                        </Border>
+                                        <Border Style="{StaticResource PillBadgeStyle}">
+                                            <TextBlock Text="{x:Bind FormatBadge}" FontSize="11" />
+                                        </Border>
+                                        <Border Style="{StaticResource PillBadgeStyle}">
+                                            <TextBlock Text="{x:Bind StatusBadgeText, Mode=OneWay}" FontSize="11" FontWeight="SemiBold" />
+                                        </Border>
+                                    </StackPanel>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                                    <Button Style="{StaticResource SubtleIconButtonStyle}"
+                                            ToolTipService.ToolTip="查看执行命令与输出日志"
+                                            Tag="{x:Bind}"
+                                            Click="ViewLog_Click">
+                                        <FontIcon Glyph="&#xE756;" FontSize="14" />
+                                    </Button>
+                                    <Button Content="定位文件"
+                                            CornerRadius="6"
+                                            Tag="{x:Bind}"
+                                            Click="OpenFile_Click"
+                                            Visibility="{x:Bind CanOpenFile, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                                    <Button Content="重试"
+                                            CornerRadius="6"
+                                            Tag="{x:Bind}"
+                                            Click="Retry_Click"
+                                            Visibility="{x:Bind CanRetry, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                                    <Button Content="取消"
+                                            CornerRadius="6"
+                                            Tag="{x:Bind}"
+                                            Click="Cancel_Click"
+                                            Visibility="{x:Bind CanCancel, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                                    <Button Style="{StaticResource SubtleIconButtonStyle}"
+                                            ToolTipService.ToolTip="移除条目"
+                                            Tag="{x:Bind}"
+                                            Click="Remove_Click"
+                                            Visibility="{x:Bind CanRemove, Mode=OneWay, Converter={StaticResource BoolToVis}}">
+                                        <FontIcon Glyph="&#xE74D;" FontSize="13" />
+                                    </Button>
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- Row 2: Fluent ProgressBar -->
+                            <ProgressBar Grid.Row="1"
+                                         Minimum="0" Maximum="100"
+                                         Value="{x:Bind ProgressPercent, Mode=OneWay}"
+                                         IsIndeterminate="{x:Bind IsIndeterminate, Mode=OneWay}"
+                                         ShowError="{x:Bind IsErrorState, Mode=OneWay}" />
+
+                            <!-- Row 3: Size / Speed / ETA -->
+                            <Grid Grid.Row="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0"
+                                           Text="{x:Bind SizeProgressText, Mode=OneWay}"
+                                           Style="{StaticResource CaptionMutedStyle}"
+                                           TextTrimming="CharacterEllipsis"
+                                           ToolTipService.ToolTip="{x:Bind ErrorMessage, Mode=OneWay}" />
+                                <TextBlock Grid.Column="1"
+                                           Text="{x:Bind SpeedText, Mode=OneWay}"
+                                           FontSize="12"
+                                           FontWeight="SemiBold"
+                                           Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                                           Margin="14,0" />
+                                <TextBlock Grid.Column="2"
+                                           Text="{x:Bind EtaText, Mode=OneWay}"
+                                           Style="{StaticResource CaptionMutedStyle}" />
+                            </Grid>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+    </Grid>
+</Page>

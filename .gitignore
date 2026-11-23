@@ -1,6 +1,14 @@
-# 添加忽略上传的项目
-.idea/**
-dist/**
-build/**
-__pycache__/
-*.pyc
+# Build outputs
+bin/
+obj/
+dist/
+*.user
+*.suo
+*.cache
+
+# IDE & tools
+.vs/
+.idea/
+.vscode/
+.claude/
+*.log

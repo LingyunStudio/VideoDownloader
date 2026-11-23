@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window
+    x:Class="VideoDownloader.Views.CookieLoginWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="网页登录获取 Cookies">
+
+    <Grid x:Name="RootGrid">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="44" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Custom Title Bar -->
+        <Grid x:Name="LoginTitleBar" Grid.Row="0" Padding="14,0,0,0" Background="Transparent">
+            <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                <FontIcon Glyph="&#xE77B;" FontSize="15" />
+                <TextBlock Text="内置浏览器登录 · 提取网站 Cookies" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center" />
+            </StackPanel>
+        </Grid>
+
+        <!-- Quick Site Buttons & Extract Action -->
+        <Border Grid.Row="1"
+                Margin="12,0,12,8"
+                Padding="12,10"
+                CornerRadius="8"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1">
+            <Grid RowSpacing="8">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <!-- Site Shortcuts + Primary Extract CTA -->
+                <Grid Grid.Row="0" ColumnSpacing="8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                        <TextBlock Text="快捷登录：" Style="{StaticResource CaptionMutedStyle}" VerticalAlignment="Center" Margin="0,0,2,0" />
+                        <Button Content="YouTube" Tag="https://www.youtube.com/" Click="QuickSite_Click" Padding="10,4" />
+                        <Button Content="Bilibili" Tag="https://www.bilibili.com/" Click="QuickSite_Click" Padding="10,4" />
+                        <Button Content="X (Twitter)" Tag="https://x.com/login" Click="QuickSite_Click" Padding="10,4" />
+                        <Button Content="抖音" Tag="https://www.douyin.com/" Click="QuickSite_Click" Padding="10,4" />
+                        <Button Content="TikTok" Tag="https://www.tiktok.com/" Click="QuickSite_Click" Padding="10,4" />
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                        <Button x:Name="ExtractButton"
+                                Style="{StaticResource AccentButtonStyle}"
+                                Click="ExtractCookies_Click"
+                                Padding="14,6">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <FontIcon Glyph="&#xE73E;" FontSize="14" />
+                                <TextBlock Text="提取并保存 Cookies" FontWeight="SemiBold" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+
+                <!-- Address Bar -->
+                <Grid Grid.Row="1" ColumnSpacing="6">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <Button Grid.Column="0" Click="Back_Click" ToolTipService.ToolTip="后退">
+                        <FontIcon Glyph="&#xE72B;" FontSize="12" />
+                    </Button>
+                    <Button Grid.Column="1" Click="Forward_Click" ToolTipService.ToolTip="前进">
+                        <FontIcon Glyph="&#xE72A;" FontSize="12" />
+                    </Button>
+                    <Button Grid.Column="2" Click="Reload_Click" ToolTipService.ToolTip="刷新">
+                        <FontIcon Glyph="&#xE72C;" FontSize="12" />
+                    </Button>
+                    <TextBox x:Name="AddressBox"
+                             Grid.Column="3"
+                             PlaceholderText="输入任意视频网站地址并回车跳转…"
+                             KeyDown="AddressBox_KeyDown" />
+                    <Button Grid.Column="4" Content="前往" Click="Go_Click" />
+                </Grid>
+            </Grid>
+        </Border>
+
+        <!-- Status Strip -->
+        <Border Grid.Row="2"
+                Margin="12,0,12,8"
+                Padding="12,6"
+                CornerRadius="6"
+                Background="{ThemeResource SubtleFillColorSecondaryBrush}">
+            <Grid ColumnSpacing="10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock x:Name="StatusText"
+                           Grid.Column="0"
+                           Text="在下方网页完成账号登录后，点击右上角「提取并保存 Cookies」。登录状态会安全保存在本地，关闭窗口后自动释放浏览器内存。"
+                           FontSize="12"
+                           TextWrapping="Wrap"
+                           VerticalAlignment="Center" />
+                <ProgressRing x:Name="LoadingRing" Grid.Column="1" Width="16" Height="16" IsActive="True" />
+            </Grid>
+        </Border>
+
+        <!-- Built-in WebView2 -->
+        <WebView2 x:Name="BrowserView" Grid.Row="3" />
+    </Grid>
+</Window>

@@ -13,7 +13,7 @@ public readonly record struct AppUpdateCheckResult(
 
 public sealed class AppUpdaterService
 {
-    public const string CurrentVersion = "3.0.1";
+    public const string CurrentVersion = "3.0.2";
     private const string LatestReleaseApi = "https://api.github.com/repos/LingyunStudio/VideoDownloader/releases/latest";
     private const string InstallerAssetName = "VideoDownloader_Setup.exe";
 

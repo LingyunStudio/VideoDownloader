@@ -2,7 +2,7 @@
 ; Compiled by build.ps1 via ISCC.exe -> dist\VideoDownloader_Setup.exe
 
 #define MyAppName        "VideoDownloader"
-#define MyAppVersion     "3.0.1"
+#define MyAppVersion     "3.0.2"
 #define MyAppPublisher   "VideoDownloader"
 #define MyAppExeName     "VideoDownloader.exe"
 #define MyAppIcon        "icon\1.ico"

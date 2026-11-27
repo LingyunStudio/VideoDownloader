@@ -21,7 +21,7 @@
                            FontWeight="SemiBold"
                            VerticalAlignment="Center" />
                 <Border Style="{StaticResource AccentPillBadgeStyle}" VerticalAlignment="Center">
-                    <TextBlock Text="v3.0.1"
+                    <TextBlock Text="v3.0.2"
                                FontSize="11"
                                FontWeight="SemiBold"
                                Foreground="{ThemeResource InfoTextBrush}" />

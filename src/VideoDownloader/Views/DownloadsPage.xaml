@@ -6,7 +6,7 @@
     xmlns:models="using:VideoDownloader.Models"
     Background="Transparent">
 
-    <Grid Padding="32,18,32,28" RowSpacing="18" MaxWidth="1080">
+    <Grid Padding="28,16,28,28" RowSpacing="18">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -113,122 +113,124 @@
                        HorizontalAlignment="Center" />
         </StackPanel>
 
-        <!-- Task List -->
-        <ListView Grid.Row="2"
-                  ItemsSource="{x:Bind ViewModel.Tasks}"
-                  SelectionMode="None"
-                  Visibility="{x:Bind ViewModel.HasTasks, Mode=OneWay, Converter={StaticResource BoolToVis}}">
-            <ListView.ItemContainerStyle>
-                <Style TargetType="ListViewItem">
-                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                    <Setter Property="Padding" Value="0,5" />
-                </Style>
-            </ListView.ItemContainerStyle>
-            <ListView.ItemTemplate>
-                <DataTemplate x:DataType="models:DownloadTaskItem">
-                    <Border Style="{StaticResource FluentCardStyle}" Padding="18,14">
-                        <Grid RowSpacing="10">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                            </Grid.RowDefinitions>
+        <!-- Adaptive Task Grid (1 col on default, 2-3 cols on wide/fullscreen) -->
+        <ScrollViewer Grid.Row="2"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled"
+                      Visibility="{x:Bind ViewModel.HasTasks, Mode=OneWay, Converter={StaticResource BoolToVis}}">
+            <ItemsRepeater ItemsSource="{x:Bind ViewModel.Tasks}" Margin="0,2,0,8">
+                <ItemsRepeater.Layout>
+                    <UniformGridLayout MinItemWidth="580"
+                                       MinColumnSpacing="14"
+                                       MinRowSpacing="12"
+                                       ItemsStretch="Fill" />
+                </ItemsRepeater.Layout>
+                <ItemsRepeater.ItemTemplate>
+                    <DataTemplate x:DataType="models:DownloadTaskItem">
+                        <Border Style="{StaticResource FluentCardStyle}" Padding="18,14">
+                            <Grid RowSpacing="10">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
 
-                            <!-- Row 1: Icon + Title + Badges + Actions -->
-                            <Grid Grid.Row="0" ColumnSpacing="14">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
+                                <!-- Row 1: Icon + Title + Badges + Actions -->
+                                <Grid Grid.Row="0" ColumnSpacing="14">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
 
-                                <Border Grid.Column="0" Width="40" Height="40" CornerRadius="10" Background="{ThemeResource InfoSoftBgBrush}" VerticalAlignment="Center">
-                                    <FontIcon Glyph="&#xE714;" FontSize="17" Foreground="{ThemeResource InfoTextBrush}" />
-                                </Border>
+                                    <Border Grid.Column="0" Width="40" Height="40" CornerRadius="10" Background="{ThemeResource InfoSoftBgBrush}" VerticalAlignment="Center">
+                                        <FontIcon Glyph="&#xE714;" FontSize="17" Foreground="{ThemeResource InfoTextBrush}" />
+                                    </Border>
 
-                                <StackPanel Grid.Column="1" Spacing="5" VerticalAlignment="Center">
-                                    <TextBlock Text="{x:Bind Title}"
-                                               FontSize="14"
-                                               FontWeight="SemiBold"
-                                               TextTrimming="CharacterEllipsis" />
-                                    <StackPanel Orientation="Horizontal" Spacing="6">
-                                        <Border Style="{StaticResource AccentPillBadgeStyle}">
-                                            <TextBlock Text="{x:Bind SourceBadge}" FontSize="11" FontWeight="SemiBold" Foreground="{ThemeResource InfoTextBrush}" />
-                                        </Border>
-                                        <Border Style="{StaticResource PillBadgeStyle}">
-                                            <TextBlock Text="{x:Bind FormatBadge}" FontSize="11" />
-                                        </Border>
-                                        <Border Style="{StaticResource PillBadgeStyle}">
-                                            <TextBlock Text="{x:Bind StatusBadgeText, Mode=OneWay}" FontSize="11" FontWeight="SemiBold" />
-                                        </Border>
+                                    <StackPanel Grid.Column="1" Spacing="5" VerticalAlignment="Center">
+                                        <TextBlock Text="{x:Bind Title}"
+                                                   FontSize="14"
+                                                   FontWeight="SemiBold"
+                                                   TextTrimming="CharacterEllipsis" />
+                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                            <Border Style="{StaticResource AccentPillBadgeStyle}">
+                                                <TextBlock Text="{x:Bind SourceBadge}" FontSize="11" FontWeight="SemiBold" Foreground="{ThemeResource InfoTextBrush}" />
+                                            </Border>
+                                            <Border Style="{StaticResource PillBadgeStyle}">
+                                                <TextBlock Text="{x:Bind FormatBadge}" FontSize="11" />
+                                            </Border>
+                                            <Border Style="{StaticResource PillBadgeStyle}">
+                                                <TextBlock Text="{x:Bind StatusBadgeText, Mode=OneWay}" FontSize="11" FontWeight="SemiBold" />
+                                            </Border>
+                                        </StackPanel>
                                     </StackPanel>
-                                </StackPanel>
 
-                                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-                                    <Button Style="{StaticResource SubtleIconButtonStyle}"
-                                            ToolTipService.ToolTip="查看执行命令与输出日志"
-                                            Tag="{x:Bind}"
-                                            Click="ViewLog_Click">
-                                        <FontIcon Glyph="&#xE756;" FontSize="14" />
-                                    </Button>
-                                    <Button Content="定位文件"
-                                            CornerRadius="6"
-                                            Tag="{x:Bind}"
-                                            Click="OpenFile_Click"
-                                            Visibility="{x:Bind CanOpenFile, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
-                                    <Button Content="重试"
-                                            CornerRadius="6"
-                                            Tag="{x:Bind}"
-                                            Click="Retry_Click"
-                                            Visibility="{x:Bind CanRetry, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
-                                    <Button Content="取消"
-                                            CornerRadius="6"
-                                            Tag="{x:Bind}"
-                                            Click="Cancel_Click"
-                                            Visibility="{x:Bind CanCancel, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
-                                    <Button Style="{StaticResource SubtleIconButtonStyle}"
-                                            ToolTipService.ToolTip="移除条目"
-                                            Tag="{x:Bind}"
-                                            Click="Remove_Click"
-                                            Visibility="{x:Bind CanRemove, Mode=OneWay, Converter={StaticResource BoolToVis}}">
-                                        <FontIcon Glyph="&#xE74D;" FontSize="13" />
-                                    </Button>
-                                </StackPanel>
+                                    <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                                        <Button Style="{StaticResource SubtleIconButtonStyle}"
+                                                ToolTipService.ToolTip="查看执行命令与输出日志"
+                                                Tag="{x:Bind}"
+                                                Click="ViewLog_Click">
+                                            <FontIcon Glyph="&#xE756;" FontSize="14" />
+                                        </Button>
+                                        <Button Content="定位文件"
+                                                CornerRadius="6"
+                                                Tag="{x:Bind}"
+                                                Click="OpenFile_Click"
+                                                Visibility="{x:Bind CanOpenFile, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                                        <Button Content="重试"
+                                                CornerRadius="6"
+                                                Tag="{x:Bind}"
+                                                Click="Retry_Click"
+                                                Visibility="{x:Bind CanRetry, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                                        <Button Content="取消"
+                                                CornerRadius="6"
+                                                Tag="{x:Bind}"
+                                                Click="Cancel_Click"
+                                                Visibility="{x:Bind CanCancel, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                                        <Button Style="{StaticResource SubtleIconButtonStyle}"
+                                                ToolTipService.ToolTip="移除条目"
+                                                Tag="{x:Bind}"
+                                                Click="Remove_Click"
+                                                Visibility="{x:Bind CanRemove, Mode=OneWay, Converter={StaticResource BoolToVis}}">
+                                            <FontIcon Glyph="&#xE74D;" FontSize="13" />
+                                        </Button>
+                                    </StackPanel>
+                                </Grid>
+
+                                <!-- Row 2: Fluent ProgressBar -->
+                                <ProgressBar Grid.Row="1"
+                                             Minimum="0" Maximum="100"
+                                             Value="{x:Bind ProgressPercent, Mode=OneWay}"
+                                             IsIndeterminate="{x:Bind IsIndeterminate, Mode=OneWay}"
+                                             ShowError="{x:Bind IsErrorState, Mode=OneWay}" />
+
+                                <!-- Row 3: Size / Speed / ETA -->
+                                <Grid Grid.Row="2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0"
+                                               Text="{x:Bind SizeProgressText, Mode=OneWay}"
+                                               Style="{StaticResource CaptionMutedStyle}"
+                                               TextTrimming="CharacterEllipsis"
+                                               ToolTipService.ToolTip="{x:Bind ErrorMessage, Mode=OneWay}" />
+                                    <TextBlock Grid.Column="1"
+                                               Text="{x:Bind SpeedText, Mode=OneWay}"
+                                               FontSize="12"
+                                               FontWeight="SemiBold"
+                                               Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                                               Margin="14,0" />
+                                    <TextBlock Grid.Column="2"
+                                               Text="{x:Bind EtaText, Mode=OneWay}"
+                                               Style="{StaticResource CaptionMutedStyle}" />
+                                </Grid>
                             </Grid>
-
-                            <!-- Row 2: Fluent ProgressBar -->
-                            <ProgressBar Grid.Row="1"
-                                         Minimum="0" Maximum="100"
-                                         Value="{x:Bind ProgressPercent, Mode=OneWay}"
-                                         IsIndeterminate="{x:Bind IsIndeterminate, Mode=OneWay}"
-                                         ShowError="{x:Bind IsErrorState, Mode=OneWay}" />
-
-                            <!-- Row 3: Size / Speed / ETA -->
-                            <Grid Grid.Row="2">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0"
-                                           Text="{x:Bind SizeProgressText, Mode=OneWay}"
-                                           Style="{StaticResource CaptionMutedStyle}"
-                                           TextTrimming="CharacterEllipsis"
-                                           ToolTipService.ToolTip="{x:Bind ErrorMessage, Mode=OneWay}" />
-                                <TextBlock Grid.Column="1"
-                                           Text="{x:Bind SpeedText, Mode=OneWay}"
-                                           FontSize="12"
-                                           FontWeight="SemiBold"
-                                           Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
-                                           Margin="14,0" />
-                                <TextBlock Grid.Column="2"
-                                           Text="{x:Bind EtaText, Mode=OneWay}"
-                                           Style="{StaticResource CaptionMutedStyle}" />
-                            </Grid>
-                        </Grid>
-                    </Border>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
+                        </Border>
+                    </DataTemplate>
+                </ItemsRepeater.ItemTemplate>
+            </ItemsRepeater>
+        </ScrollViewer>
     </Grid>
 </Page>

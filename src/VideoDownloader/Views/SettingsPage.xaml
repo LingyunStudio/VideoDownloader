@@ -6,16 +6,21 @@
     Background="Transparent">
 
     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-        <StackPanel Padding="32,18,32,40" Spacing="20" MaxWidth="980">
+        <Grid x:Name="SettingsRootGrid" Padding="28,16,28,40" RowSpacing="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
 
-            <StackPanel Spacing="3">
+            <StackPanel Grid.Row="0" Spacing="3">
                 <TextBlock Text="设置与更新" Style="{StaticResource PageTitleStyle}" />
                 <TextBlock Text="个性化窗口材质与主题、下载性能参数，以及引擎与软件在线升级"
                            Style="{StaticResource CaptionMutedStyle}" />
             </StackPanel>
 
-            <!-- Brand Hero Banner Card (Showcases User's Custom dlp.png Icon) -->
-            <Border Style="{StaticResource FluentCardStyle}" Padding="22,20">
+            <!-- Brand Hero Banner Card (Full Width) -->
+            <Border Grid.Row="1" Style="{StaticResource FluentCardStyle}" Padding="22,20">
                 <StackPanel Spacing="14">
                     <Grid ColumnSpacing="18">
                         <Grid.ColumnDefinitions>
@@ -70,238 +75,261 @@
                 </StackPanel>
             </Border>
 
-            <!-- Section 1: Appearance (Windows 11 SettingsCard rows) -->
-            <StackPanel Spacing="6">
-                <TextBlock Text="外观与材质" Style="{StaticResource SectionHeaderTextStyle}" Margin="2,0,0,4" />
+            <!-- Adaptive Settings Columns: 1 Col on Compact, 2 Balanced Columns on Wide/Fullscreen -->
+            <Grid x:Name="SettingsColumnsGrid" Grid.Row="2" RowSpacing="20" ColumnSpacing="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition x:Name="LeftColumnDef" Width="*" />
+                    <ColumnDefinition x:Name="RightColumnDef" Width="0" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
 
-                <Border Style="{StaticResource SettingsItemCardStyle}">
-                    <Grid ColumnSpacing="14">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="170" />
-                        </Grid.ColumnDefinitions>
-                        <FontIcon Grid.Column="0" Glyph="&#xE790;" FontSize="18" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center" />
-                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
-                            <TextBlock Text="应用色彩主题" FontSize="14" FontWeight="Medium" />
-                            <TextBlock Text="选择跟随 Windows 系统，或固定使用浅色 / 深色模式" Style="{StaticResource CaptionMutedStyle}" />
-                        </StackPanel>
-                        <ComboBox Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                                  SelectedItem="{x:Bind ViewModel.SelectedTheme, Mode=TwoWay}">
-                            <x:String>Default</x:String>
-                            <x:String>Light</x:String>
-                            <x:String>Dark</x:String>
-                        </ComboBox>
-                    </Grid>
-                </Border>
+                <!-- Left Column: Appearance + Engine Management -->
+                <StackPanel x:Name="LeftSettingsColumn" Grid.Row="0" Grid.Column="0" Spacing="20">
 
-                <Border Style="{StaticResource SettingsItemCardStyle}">
-                    <Grid ColumnSpacing="14">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="170" />
-                        </Grid.ColumnDefinitions>
-                        <FontIcon Grid.Column="0" Glyph="&#xEF1F;" FontSize="18" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center" />
-                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
-                            <TextBlock Text="窗口背景材质" FontSize="14" FontWeight="Medium" />
-                            <TextBlock Text="原生 Windows 11 Mica / MicaAlt / Acrylic 亚克力毛玻璃效果" Style="{StaticResource CaptionMutedStyle}" />
-                        </StackPanel>
-                        <ComboBox Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                                  SelectedItem="{x:Bind ViewModel.SelectedBackdrop, Mode=TwoWay}">
-                            <x:String>Mica</x:String>
-                            <x:String>MicaAlt</x:String>
-                            <x:String>Acrylic</x:String>
-                        </ComboBox>
-                    </Grid>
-                </Border>
-            </StackPanel>
+                    <!-- Section 1: Appearance -->
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="外观与材质" Style="{StaticResource SectionHeaderTextStyle}" Margin="2,0,0,4" />
 
-            <!-- Section 2: Engine Management -->
-            <StackPanel Spacing="6">
-                <TextBlock Text="下载引擎与核心组件" Style="{StaticResource SectionHeaderTextStyle}" Margin="2,0,0,4" />
-
-                <Border Style="{StaticResource SettingsItemCardStyle}">
-                    <StackPanel Spacing="10">
-                        <Grid ColumnSpacing="14">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <FontIcon Grid.Column="0" Glyph="&#xE756;" FontSize="18" Foreground="{ThemeResource InfoTextBrush}" VerticalAlignment="Center" />
-                            <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="3">
-                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <TextBlock Text="yt-dlp 解析与下载引擎" FontSize="14" FontWeight="Medium" />
-                                    <Border Style="{StaticResource SuccessPillBadgeStyle}" VerticalAlignment="Center">
-                                        <TextBlock Text="{x:Bind ViewModel.YtDlpVersion, Mode=OneWay}" FontSize="11" FontWeight="SemiBold" Foreground="{ThemeResource SuccessTextBrush}" />
-                                    </Border>
+                        <Border Style="{StaticResource SettingsItemCardStyle}">
+                            <Grid ColumnSpacing="14">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="160" />
+                                </Grid.ColumnDefinitions>
+                                <FontIcon Grid.Column="0" Glyph="&#xE790;" FontSize="18" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center" />
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                                    <TextBlock Text="应用色彩主题" FontSize="14" FontWeight="Medium" />
+                                    <TextBlock Text="选择跟随 Windows 系统，或固定使用浅色 / 深色模式" Style="{StaticResource CaptionMutedStyle}" TextWrapping="Wrap" />
                                 </StackPanel>
-                                <TextBlock Text="{x:Bind ViewModel.YtDlpStatus, Mode=OneWay}" Style="{StaticResource CaptionMutedStyle}" TextTrimming="CharacterEllipsis" />
-                            </StackPanel>
-                            <Button Grid.Column="2"
-                                    Content="检查并更新"
-                                    CornerRadius="8"
-                                    Command="{x:Bind ViewModel.UpdateYtDlpCommand}"
-                                    IsEnabled="{x:Bind ViewModel.CanUpdateYtDlp, Mode=OneWay}"
-                                    VerticalAlignment="Center" />
-                        </Grid>
-                        <ProgressBar Minimum="0" Maximum="100"
-                                     Value="{x:Bind ViewModel.YtDlpProgress, Mode=OneWay}"
-                                     Visibility="{x:Bind ViewModel.IsYtDlpBusy, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
-                    </StackPanel>
-                </Border>
+                                <ComboBox Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Center"
+                                          SelectedItem="{x:Bind ViewModel.SelectedTheme, Mode=TwoWay}">
+                                    <x:String>Default</x:String>
+                                    <x:String>Light</x:String>
+                                    <x:String>Dark</x:String>
+                                </ComboBox>
+                            </Grid>
+                        </Border>
 
-                <Border Style="{StaticResource SettingsItemCardStyle}">
-                    <StackPanel Spacing="10">
+                        <Border Style="{StaticResource SettingsItemCardStyle}">
+                            <Grid ColumnSpacing="14">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="160" />
+                                </Grid.ColumnDefinitions>
+                                <FontIcon Grid.Column="0" Glyph="&#xEF1F;" FontSize="18" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center" />
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                                    <TextBlock Text="窗口背景材质" FontSize="14" FontWeight="Medium" />
+                                    <TextBlock Text="原生 Windows 11 Mica / MicaAlt / Acrylic 亚克力毛玻璃效果" Style="{StaticResource CaptionMutedStyle}" TextWrapping="Wrap" />
+                                </StackPanel>
+                                <ComboBox Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Center"
+                                          SelectedItem="{x:Bind ViewModel.SelectedBackdrop, Mode=TwoWay}">
+                                    <x:String>Mica</x:String>
+                                    <x:String>MicaAlt</x:String>
+                                    <x:String>Acrylic</x:String>
+                                </ComboBox>
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Section 2: Engine Management -->
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="下载引擎与核心组件" Style="{StaticResource SectionHeaderTextStyle}" Margin="2,0,0,4" />
+
+                        <Border Style="{StaticResource SettingsItemCardStyle}">
+                            <StackPanel Spacing="10">
+                                <Grid ColumnSpacing="14">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <FontIcon Grid.Column="0" Glyph="&#xE756;" FontSize="18" Foreground="{ThemeResource InfoTextBrush}" VerticalAlignment="Center" />
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="3">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <TextBlock Text="yt-dlp 解析与下载引擎" FontSize="14" FontWeight="Medium" />
+                                            <Border Style="{StaticResource SuccessPillBadgeStyle}" VerticalAlignment="Center">
+                                                <TextBlock Text="{x:Bind ViewModel.YtDlpVersion, Mode=OneWay}" FontSize="11" FontWeight="SemiBold" Foreground="{ThemeResource SuccessTextBrush}" />
+                                            </Border>
+                                        </StackPanel>
+                                        <TextBlock Text="{x:Bind ViewModel.YtDlpStatus, Mode=OneWay}" Style="{StaticResource CaptionMutedStyle}" TextTrimming="CharacterEllipsis" />
+                                    </StackPanel>
+                                    <Button Grid.Column="2"
+                                            Content="检查并更新"
+                                            CornerRadius="8"
+                                            Command="{x:Bind ViewModel.UpdateYtDlpCommand}"
+                                            IsEnabled="{x:Bind ViewModel.CanUpdateYtDlp, Mode=OneWay}"
+                                            VerticalAlignment="Center" />
+                                </Grid>
+                                <ProgressBar Minimum="0" Maximum="100"
+                                             Value="{x:Bind ViewModel.YtDlpProgress, Mode=OneWay}"
+                                             Visibility="{x:Bind ViewModel.IsYtDlpBusy, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource SettingsItemCardStyle}">
+                            <StackPanel Spacing="10">
+                                <Grid ColumnSpacing="14">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <FontIcon Grid.Column="0" Glyph="&#xE8B2;" FontSize="18" Foreground="{ThemeResource WarningTextBrush}" VerticalAlignment="Center" />
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                                        <TextBlock Text="ffmpeg 音视频合并与转码组件" FontSize="14" FontWeight="Medium" />
+                                        <TextBlock Text="{x:Bind ViewModel.FfmpegStatus, Mode=OneWay}" Style="{StaticResource CaptionMutedStyle}" TextTrimming="CharacterEllipsis" />
+                                    </StackPanel>
+                                    <Button Grid.Column="2"
+                                            Content="下载 / 修复"
+                                            CornerRadius="8"
+                                            Command="{x:Bind ViewModel.InstallFfmpegCommand}"
+                                            IsEnabled="{x:Bind ViewModel.CanInstallFfmpeg, Mode=OneWay}"
+                                            VerticalAlignment="Center" />
+                                </Grid>
+                                <ProgressBar Minimum="0" Maximum="100"
+                                             Value="{x:Bind ViewModel.FfmpegProgress, Mode=OneWay}"
+                                             Visibility="{x:Bind ViewModel.IsFfmpegBusy, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource SettingsItemCardStyle}">
+                            <StackPanel Spacing="10">
+                                <Grid ColumnSpacing="14">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <FontIcon Grid.Column="0" Glyph="&#xEC4A;" FontSize="18" Foreground="{ThemeResource SuccessTextBrush}" VerticalAlignment="Center" />
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                                        <TextBlock Text="aria2c 多线程下载加速引擎" FontSize="14" FontWeight="Medium" />
+                                        <TextBlock Text="{x:Bind ViewModel.Aria2Status, Mode=OneWay}" Style="{StaticResource CaptionMutedStyle}" TextTrimming="CharacterEllipsis" />
+                                    </StackPanel>
+                                    <Button Grid.Column="2"
+                                            Content="下载 / 修复"
+                                            CornerRadius="8"
+                                            Command="{x:Bind ViewModel.InstallAria2Command}"
+                                            IsEnabled="{x:Bind ViewModel.CanInstallAria2, Mode=OneWay}"
+                                            VerticalAlignment="Center" />
+                                </Grid>
+                                <ProgressBar Minimum="0" Maximum="100"
+                                             Value="{x:Bind ViewModel.Aria2Progress, Mode=OneWay}"
+                                             Visibility="{x:Bind ViewModel.IsAria2Busy, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Right Column: Download & Network Defaults -->
+                <StackPanel x:Name="RightSettingsColumn" Grid.Row="1" Grid.Column="0" Spacing="6">
+                    <TextBlock Text="下载与网络默认参数" Style="{StaticResource SectionHeaderTextStyle}" Margin="2,0,0,4" />
+
+                    <Border Style="{StaticResource SettingsItemCardStyle}">
                         <Grid ColumnSpacing="14">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            <FontIcon Grid.Column="0" Glyph="&#xE8B2;" FontSize="18" Foreground="{ThemeResource WarningTextBrush}" VerticalAlignment="Center" />
+                            <FontIcon Grid.Column="0" Glyph="&#xE8B7;" FontSize="18" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center" />
                             <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
-                                <TextBlock Text="ffmpeg 音视频合并与转码组件" FontSize="14" FontWeight="Medium" />
-                                <TextBlock Text="{x:Bind ViewModel.FfmpegStatus, Mode=OneWay}" Style="{StaticResource CaptionMutedStyle}" TextTrimming="CharacterEllipsis" />
+                                <TextBlock Text="默认保存目录" FontSize="14" FontWeight="Medium" />
+                                <TextBlock Text="{x:Bind ViewModel.OutputDirectory, Mode=OneWay}" Style="{StaticResource CaptionMutedStyle}" TextTrimming="CharacterEllipsis" />
                             </StackPanel>
-                            <Button Grid.Column="2"
-                                    Content="下载 / 修复"
-                                    CornerRadius="8"
-                                    Command="{x:Bind ViewModel.InstallFfmpegCommand}"
-                                    IsEnabled="{x:Bind ViewModel.CanInstallFfmpeg, Mode=OneWay}"
-                                    VerticalAlignment="Center" />
+                            <Button Grid.Column="2" Content="更改目录…" CornerRadius="8" Click="BrowseDir_Click" VerticalAlignment="Center" />
                         </Grid>
-                        <ProgressBar Minimum="0" Maximum="100"
-                                     Value="{x:Bind ViewModel.FfmpegProgress, Mode=OneWay}"
-                                     Visibility="{x:Bind ViewModel.IsFfmpegBusy, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
-                    </StackPanel>
-                </Border>
+                    </Border>
 
-                <Border Style="{StaticResource SettingsItemCardStyle}">
-                    <StackPanel Spacing="10">
-                        <Grid ColumnSpacing="14">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <FontIcon Grid.Column="0" Glyph="&#xEC4A;" FontSize="18" Foreground="{ThemeResource SuccessTextBrush}" VerticalAlignment="Center" />
-                            <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
-                                <TextBlock Text="aria2c 多线程下载加速引擎" FontSize="14" FontWeight="Medium" />
-                                <TextBlock Text="{x:Bind ViewModel.Aria2Status, Mode=OneWay}" Style="{StaticResource CaptionMutedStyle}" TextTrimming="CharacterEllipsis" />
-                            </StackPanel>
-                            <Button Grid.Column="2"
-                                    Content="下载 / 修复"
-                                    CornerRadius="8"
-                                    Command="{x:Bind ViewModel.InstallAria2Command}"
-                                    IsEnabled="{x:Bind ViewModel.CanInstallAria2, Mode=OneWay}"
-                                    VerticalAlignment="Center" />
-                        </Grid>
-                        <ProgressBar Minimum="0" Maximum="100"
-                                     Value="{x:Bind ViewModel.Aria2Progress, Mode=OneWay}"
-                                     Visibility="{x:Bind ViewModel.IsAria2Busy, Mode=OneWay, Converter={StaticResource BoolToVis}}" />
-                    </StackPanel>
-                </Border>
-            </StackPanel>
+                    <Border Style="{StaticResource SettingsItemCardStyle}">
+                        <StackPanel Spacing="14">
+                            <Grid ColumnSpacing="14">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <FontIcon Grid.Column="0" Glyph="&#xEC4A;" FontSize="18" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center" />
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                                    <TextBlock Text="并发与多线程加速" FontSize="14" FontWeight="Medium" />
+                                    <TextBlock Text="开启 aria2c 多连接分块下载，显著提升 YouTube / HTTP 视频速度" Style="{StaticResource CaptionMutedStyle}" TextWrapping="Wrap" />
+                                </StackPanel>
+                                <ToggleSwitch Grid.Column="2" OnContent="开启" OffContent="关闭" IsOn="{x:Bind ViewModel.UseAria2Acceleration, Mode=TwoWay}" VerticalAlignment="Center" MinWidth="0" />
+                            </Grid>
 
-            <!-- Section 3: Download & Network Defaults -->
-            <StackPanel Spacing="6">
-                <TextBlock Text="下载与网络默认参数" Style="{StaticResource SectionHeaderTextStyle}" Margin="2,0,0,4" />
-
-                <Border Style="{StaticResource SettingsItemCardStyle}">
-                    <Grid ColumnSpacing="14">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <FontIcon Grid.Column="0" Glyph="&#xE8B7;" FontSize="18" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center" />
-                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
-                            <TextBlock Text="默认保存目录" FontSize="14" FontWeight="Medium" />
-                            <TextBlock Text="{x:Bind ViewModel.OutputDirectory, Mode=OneWay}" Style="{StaticResource CaptionMutedStyle}" TextTrimming="CharacterEllipsis" />
+                            <Grid ColumnSpacing="12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <NumberBox Grid.Column="0" Header="aria2c 线程" Minimum="1" Maximum="16" SpinButtonPlacementMode="Inline" Value="{x:Bind ViewModel.Aria2Connections, Mode=TwoWay}" />
+                                <NumberBox Grid.Column="1" Header="并发任务" Minimum="1" Maximum="10" SpinButtonPlacementMode="Inline" Value="{x:Bind ViewModel.MaxConcurrentDownloads, Mode=TwoWay}" />
+                                <NumberBox Grid.Column="2" Header="HLS 分片" Minimum="1" Maximum="16" SpinButtonPlacementMode="Inline" Value="{x:Bind ViewModel.ConcurrentFragments, Mode=TwoWay}" />
+                            </Grid>
                         </StackPanel>
-                        <Button Grid.Column="2" Content="更改目录…" CornerRadius="8" Click="BrowseDir_Click" VerticalAlignment="Center" />
-                    </Grid>
-                </Border>
+                    </Border>
 
-                <Border Style="{StaticResource SettingsItemCardStyle}">
-                    <Grid ColumnSpacing="14">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="130" />
-                            <ColumnDefinition Width="130" />
-                            <ColumnDefinition Width="130" />
-                        </Grid.ColumnDefinitions>
-                        <FontIcon Grid.Column="0" Glyph="&#xEC4A;" FontSize="18" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center" />
-                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
-                            <TextBlock Text="并发与多线程加速" FontSize="14" FontWeight="Medium" />
-                            <TextBlock Text="开启 aria2c 多连接分块下载，显著提升 YouTube / HTTP 视频速度" Style="{StaticResource CaptionMutedStyle}" />
+                    <Border Style="{StaticResource SettingsItemCardStyle}">
+                        <StackPanel Spacing="14">
+                            <Grid ColumnSpacing="12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="136" />
+                                    <ColumnDefinition Width="136" />
+                                </Grid.ColumnDefinitions>
+                                <TextBox Grid.Column="0"
+                                         Header="自定义代理地址（留空跟随系统）"
+                                         PlaceholderText="http://127.0.0.1:7890"
+                                         Text="{x:Bind ViewModel.ProxyUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBox Grid.Column="1"
+                                         Header="默认限速 (-r)"
+                                         PlaceholderText="如 5M"
+                                         Text="{x:Bind ViewModel.RateLimit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <ComboBox Grid.Column="2"
+                                          Header="默认指纹模拟"
+                                          HorizontalAlignment="Stretch"
+                                          SelectedItem="{x:Bind ViewModel.Impersonate, Mode=TwoWay}">
+                                    <x:String>none</x:String>
+                                    <x:String>chrome</x:String>
+                                    <x:String>edge</x:String>
+                                    <x:String>safari</x:String>
+                                </ComboBox>
+                            </Grid>
+
+                            <Grid ColumnSpacing="12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <TextBox Grid.Column="0"
+                                         Header="输出文件名模板（yt-dlp 语法）"
+                                         Text="{x:Bind ViewModel.OutputTemplate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBox Grid.Column="1"
+                                         Header="默认额外 CLI 参数（可选）"
+                                         PlaceholderText="例如 --extractor-args ..."
+                                         Text="{x:Bind ViewModel.DefaultExtraArguments, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            </Grid>
+
+                            <Grid ColumnSpacing="14">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <ToggleSwitch Grid.Column="0" Header="JS 运行时" IsOn="{x:Bind ViewModel.EnableJsRuntimes, Mode=TwoWay}" />
+                                <ToggleSwitch Grid.Column="1" Header="强制 IPv4 (-4)" IsOn="{x:Bind ViewModel.ForceIpv4, Mode=TwoWay}" />
+                                <ToggleSwitch Grid.Column="2" Header="启用去重档案" IsOn="{x:Bind ViewModel.UseDownloadArchive, Mode=TwoWay}" />
+                            </Grid>
                         </StackPanel>
-                        <ToggleSwitch Grid.Column="2" Header="aria2c 加速" IsOn="{x:Bind ViewModel.UseAria2Acceleration, Mode=TwoWay}" VerticalAlignment="Center" />
-                        <NumberBox Grid.Column="3" Header="aria2c 线程" Minimum="1" Maximum="16" SpinButtonPlacementMode="Inline" Value="{x:Bind ViewModel.Aria2Connections, Mode=TwoWay}" />
-                        <NumberBox Grid.Column="4" Header="并发任务" Minimum="1" Maximum="10" SpinButtonPlacementMode="Inline" Value="{x:Bind ViewModel.MaxConcurrentDownloads, Mode=TwoWay}" />
-                        <NumberBox Grid.Column="5" Header="HLS 分片" Minimum="1" Maximum="16" SpinButtonPlacementMode="Inline" Value="{x:Bind ViewModel.ConcurrentFragments, Mode=TwoWay}" />
-                    </Grid>
-                </Border>
+                    </Border>
+                </StackPanel>
+            </Grid>
 
-                <Border Style="{StaticResource SettingsItemCardStyle}">
-                    <StackPanel Spacing="14">
-                        <Grid ColumnSpacing="14">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="150" />
-                                <ColumnDefinition Width="150" />
-                            </Grid.ColumnDefinitions>
-                            <TextBox Grid.Column="0"
-                                     Header="自定义代理地址（留空跟随系统代理）"
-                                     PlaceholderText="例如 http://127.0.0.1:7890 或 socks5://127.0.0.1:1080"
-                                     Text="{x:Bind ViewModel.ProxyUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                            <TextBox Grid.Column="1"
-                                     Header="默认限速 (-r)"
-                                     PlaceholderText="如 5M / 500K"
-                                     Text="{x:Bind ViewModel.RateLimit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                            <ComboBox Grid.Column="2"
-                                      Header="默认指纹模拟"
-                                      HorizontalAlignment="Stretch"
-                                      SelectedItem="{x:Bind ViewModel.Impersonate, Mode=TwoWay}">
-                                <x:String>none</x:String>
-                                <x:String>chrome</x:String>
-                                <x:String>edge</x:String>
-                                <x:String>safari</x:String>
-                            </ComboBox>
-                        </Grid>
-
-                        <Grid ColumnSpacing="14">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <TextBox Grid.Column="0"
-                                     Header="输出文件名模板（yt-dlp 语法）"
-                                     Text="{x:Bind ViewModel.OutputTemplate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                            <TextBox Grid.Column="1"
-                                     Header="默认额外 CLI 参数（可选）"
-                                     PlaceholderText="例如 --extractor-args &quot;youtube:player_client=tv,web&quot;"
-                                     Text="{x:Bind ViewModel.DefaultExtraArguments, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                        </Grid>
-
-                        <Grid ColumnSpacing="18">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <ToggleSwitch Grid.Column="0" Header="启用 Node / Deno JS 运行时" IsOn="{x:Bind ViewModel.EnableJsRuntimes, Mode=TwoWay}" />
-                            <ToggleSwitch Grid.Column="1" Header="默认强制 IPv4 (-4)" IsOn="{x:Bind ViewModel.ForceIpv4, Mode=TwoWay}" />
-                            <ToggleSwitch Grid.Column="2" Header="默认启用去重档案" IsOn="{x:Bind ViewModel.UseDownloadArchive, Mode=TwoWay}" />
-                        </Grid>
-                    </StackPanel>
-                </Border>
-            </StackPanel>
-
-        </StackPanel>
+        </Grid>
     </ScrollViewer>
 </Page>
